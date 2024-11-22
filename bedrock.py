@@ -2,7 +2,7 @@ import boto3
 import json
 bedrock = boto3.client(service_name='bedrock-runtime')
 
-text = f"カシスリキュールが材料のおすすめカクテルを教えて"
+text = f"カシスリキュールが材料のおすすめカクテル名を教えてください。カクテル名だけで結構です。"
 
 #titanのbody
 body = json.dumps({
