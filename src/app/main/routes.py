@@ -1,11 +1,18 @@
 from . import main
-#from .services import create_user_service, get_user_service
+from flask import request
 from ..service.getSnacks import getSnacks
+from ..service.createPrompt import createSnackPrompt
+
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 @main.route('/test')
-def hello():
-    return "<h1>Hello World!!</h1>"
+def test():
+    return createSnackPrompt("カシスリキュール")
 
 @main.route('/snack', methods=["GET"])
 def getSnack():
-    return getSnacks()
+    return getSnacks(["ジン"])
