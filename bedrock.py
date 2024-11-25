@@ -1,28 +1,40 @@
 import boto3
 import json
-bedrock = boto3.client(service_name='bedrock-runtime')
 
-text = f"カシスリキュールが材料のおすすめカクテル名を教えてください。カクテル名だけで結構です。"
 
-#titanのbody
-body = json.dumps({
-    "inputText": text,
-    "textGenerationConfig": {
-        "temperature": 0.7,
-        "topP": 0.9,
-        "maxTokenCount": 300
+bedrock_client = boto3.client("bedrock-runtime",region_name="us-east-1")
+
+body = json.dumps(
+    {
+        "anthropic_version": "bedrock-2023-05-31",
+        "max_tokens": 1000,
+        "system": "あなたの仕事はユーザーの質問に答えることです。",
+        "messages": [
+            {
+                "role": "user",
+                "content": "雲の上には何がありますか？"
+            }
+        ]
     }
-})
+)
 
-#モデルなどを指定し、bedrockにリクエスト
-response = bedrock.invoke_model(
-    body = body,
-    modelId = "amazon.titan-text-express-v1",
-    accept = 'application/json',
-    contentType = 'application/json'
-    )
+bedrock_model_id = "anthropic.claude-3-5-sonnet-20241022-v2:0"
 
-#titanのoutput
-response_body = json.loads(response.get('body').read())
-output_text = response_body['results'][0]['outputText']
-print(output_text)
+header_accept = "application/json"
+content_type = "application/json"
+
+res = bedrock_client.invoke_model(
+    body=body,
+    modelId=bedrock_model_id,
+    accept=header_accept,
+    contentType=content_type
+)
+
+if res.get("body"):
+    res_body = json.loads(res.get("body").read())
+
+    if res_body["content"]:
+        answer = res_body["content"][0].get("text")
+        print(answer)
+else:
+    print("レスポンスのボディがありません！")
