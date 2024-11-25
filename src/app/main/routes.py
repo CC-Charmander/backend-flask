@@ -11,7 +11,7 @@ load_dotenv()
 
 @main.route('/test')
 def test():
-    return createSnackPrompt("カシスリキュール")
+    return "hoge"
 
 @main.route('/snack', methods=["GET"])
 def getSnack():
