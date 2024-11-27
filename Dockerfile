@@ -1,20 +1,17 @@
 # ベースイメージの指定 (Python)
-FROM python:3.9-slim
-
-# 作業ディレクトリの設定
-WORKDIR /app
+FROM public.ecr.aws/lambda/python:3.9
 
 # 必要な依存関係をコピー
-COPY requirements.txt /app/
+COPY requirements.txt /var/task/
 
 # 依存関係のインストール
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r /var/task/requirements.txt -t /var/task/
 
 # Flaskアプリケーションをコピー
-COPY . /app/
+COPY . /var/task/
 
 # ポート番号の指定
-EXPOSE 5000
+EXPOSE 8000
 
 # Flaskアプリケーションの起動
-CMD ["python", "app.py"]
+CMD ["lambda_handler.lambda_handler"]

@@ -1,34 +1,31 @@
-from flask import Flask, jsonify, request
-from src.service.getSnacks import getSnacks
+from flask import Flask, jsonify
 from flask_cors import CORS
 import boto3
+import os
+from src.main.routes import register_routes  # ルート登録関数をインポート
 
-app = Flask(__name__)
-CORS(app)
+def create_app():
+    app = Flask(__name__)
+    CORS(app)
 
-bedrock_client = boto3.client("bedrock-runtime",region_name="us-east-1")
+    # Bedrock クライアントをアプリコンテキストに登録
+    app.bedrock_client = boto3.client(
+        "bedrock-runtime",
+        region_name=os.getenv("AWS_REGION", "us-east-1")
+    )
 
-@app.route('/')
-def hello():
-    return jsonify(message="Hello from Flask in AWS Lambda!")
+    register_routes(app)
 
-@app.route('/test')
-def test():
-    param = request.get_json()
-    return param
+    # カスタムエラーハンドラー
+    @app.errorhandler(404)
+    def not_found_error(error):
+        return jsonify({"error": "Not Found"}), 404
 
-@app.route('/api/snack', methods=["GET"])
-def getSnack():
-    # param = request.get_json()
-    param = request.args.get("ingredients")
 
-    return getSnacks(param, bedrock_client)
-    #return param
+    return app
 
-@app.route('/api/snack/test', methods=["GET"])
-def getSnackTest():
-    
-    return getSnacks("ジン", bedrock_client)
+app = create_app()
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8000, debug=True)
+    debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
+    app.run(host="0.0.0.0", port=8000, debug=debug_mode)

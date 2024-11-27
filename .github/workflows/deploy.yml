@@ -1,0 +1,47 @@
+name: Deploy to AWS Lambda
+
+on:
+  push:
+    branches:
+      - main # mainブランチにプッシュされた場合にトリガー
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. リポジトリをチェックアウト
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. AWS CLIのセットアップ
+      - name: Configure AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      # 3. Dockerイメージをビルド
+      - name: Build Docker image
+        run: |
+          docker build -t flask-app .
+
+      # 4. DockerイメージをECRにタグ付け
+      - name: Tag Docker image
+        run: |
+          docker tag flask-app:latest 423623825769.dkr.ecr.us-east-1.amazonaws.com/my-lambda-container
+
+      # 5. DockerイメージをECRにプッシュ
+      - name: Push Docker image to Amazon ECR
+        run: |
+          aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 423623825769.dkr.ecr.us-east-1.amazonaws.com/my-lambda-container
+          docker push 423623825769.dkr.ecr.us-east-1.amazonaws.com/my-lambda-container:latest
+
+      # 6. AWS Lambda関数を更新
+      - name: Update AWS Lambda function
+        run: |
+          aws lambda update-function-code \
+              --function-name my-flask-app-container \
+              --image-uri 423623825769.dkr.ecr.us-east-1.amazonaws.com/my-lambda-container:latest \
+              --region us-east-1

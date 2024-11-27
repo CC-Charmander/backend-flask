@@ -26,8 +26,8 @@ def getSnacks(value, bedrock_client):
         }
     )
 
-    # bedrock_model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-    bedrock_model_id = "anthropic.claude-3-5-haiku-20241022-v1:0"
+    bedrock_model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    # bedrock_model_id = "anthropic.claude-3-5-haiku-20241022-v1:0"
 
     header_accept = "application/json"
     content_type = "application/json"
