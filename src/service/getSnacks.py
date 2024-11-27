@@ -2,11 +2,12 @@ import boto3
 import json
 from .createPrompt import createSnackPrompt
 
-def getSnacks(value):
+def getSnacks(value, bedrock_client):
 
-    bedrock_client = boto3.client("bedrock-runtime",region_name="us-east-1")
+    #bedrock_client = boto3.client("bedrock-runtime",region_name="us-east-1")
 
     text = createSnackPrompt(value)
+    print(text)
 
     systemPrompt = text[0]
     prompt = text[1]
@@ -25,8 +26,8 @@ def getSnacks(value):
         }
     )
 
-    bedrock_model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
-    # bedrock_model_id = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+    # bedrock_model_id = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    bedrock_model_id = "anthropic.claude-3-5-haiku-20241022-v1:0"
 
     header_accept = "application/json"
     content_type = "application/json"
